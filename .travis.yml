@@ -17,7 +17,7 @@ before_install:
 
 script:
 - cd tests
-- LANG=C xvfb-run -a -s '-screen 0 1024x768x24' python ../test.py *.dot graphs/*.gv
+- LANG=C xvfb-run -a -s '-screen 0 1024x768x24' /usr/bin/python3 ../test.py *.dot graphs/*.gv
 - cd ..
 
 # https://docs.travis-ci.com/user/deployment/pypi/
