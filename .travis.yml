@@ -14,6 +14,7 @@ addons:
 
 before_install:
 - dot -V
+- /usr/bin/python3 --version
 
 script:
 - cd tests
