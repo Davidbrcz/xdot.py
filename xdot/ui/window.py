@@ -479,6 +479,8 @@ class DotWindow(Gtk.Window):
             <toolitem action="Zoom100"/>
             <separator/>
             <toolitem name="Find" action="Find"/>
+            <toolitem action="Backward"/>
+            <toolitem action="Forward"/>
         </toolbar>
     </ui>
     '''
@@ -492,6 +494,10 @@ class DotWindow(Gtk.Window):
 
         window = self
 
+        self.current_num=0
+        self.pattern=""
+        self.dir=""
+        
         window.set_title(self.base_title)
         window.set_default_size(width, height)
         vbox = Gtk.VBox()
@@ -521,6 +527,8 @@ class DotWindow(Gtk.Window):
             ('ZoomOut', Gtk.STOCK_ZOOM_OUT, None, None, None, self.dotwidget.on_zoom_out),
             ('ZoomFit', Gtk.STOCK_ZOOM_FIT, None, None, None, self.dotwidget.on_zoom_fit),
             ('Zoom100', Gtk.STOCK_ZOOM_100, None, None, None, self.dotwidget.on_zoom_100),
+            ('Backward', Gtk.STOCK_GO_BACK, None, None, None, self.on_backward),
+            ('Forward', Gtk.STOCK_GO_FORWARD, None, None, None, self.on_forward)
         ))
 
         find_action = FindMenuToolAction("Find", None,
@@ -606,13 +614,32 @@ class DotWindow(Gtk.Window):
             self.set_title(os.path.basename(filename) + ' - ' + self.base_title)
 
     def open_file(self, filename):
-        try:
+#        try:
+            name = os.path.splitext(os.path.basename(filename))[0]
+            self.dir = os.path.dirname(filename)
+            match = re.search('\d+', name)            
+            if match:
+                self.current_num = int(match.group(0))
+                self.pattern = name[0:match.start()] + "{:0" + str(len(match.group(0))) + "d}" + name[match.end():]
+                
             fp = open(filename, 'rb')
             self.set_dotcode(fp.read(), filename)
             fp.close()
-        except IOError as ex:
-            self.error_dialog(str(ex))
+        # except Error as ex:
+        #     self.error_dialog(str(ex))
 
+    def on_forward(self, action):
+        try:
+            self.current_num =  self.current_num + 1
+            self.open_file(os.path.join(self.dir,self.pattern.format(self.current_num) ))
+        except Error as ex:
+            self.current_num =  self.current_num - 1
+    def on_backward(self, action):
+        try:
+            self.current_num =  self.current_num - 1
+            self.open_file(os.path.join(self.dir,self.pattern.format(self.current_num) ))
+        except IOError as ex:
+            self.current_num =  self.current_num + 1
     def on_open(self, action):
         chooser = Gtk.FileChooserDialog(parent=self,
                                         title="Open dot File",

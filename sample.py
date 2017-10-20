@@ -23,14 +23,13 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 import xdot
+import sys
 
 
 class MyDotWindow(xdot.DotWindow):
-
     def __init__(self):
         xdot.DotWindow.__init__(self)
         self.dotwidget.connect('clicked', self.on_url_clicked)
-
     def on_url_clicked(self, widget, url, event):
         dialog = Gtk.MessageDialog(
             parent=self,
@@ -40,19 +39,12 @@ class MyDotWindow(xdot.DotWindow):
         dialog.run()
         return True
 
-
-dotcode = """
-digraph G {
-  Hello [URL="http://en.wikipedia.org/wiki/Hello"]
-  World [URL="http://en.wikipedia.org/wiki/World"]
-    Hello -> World
-}
-"""
-
-
 def main():
     window = MyDotWindow()
-    window.set_dotcode(dotcode)
+    # window.set_dotcode(dotcode.encode('utf-8'))
+    if len(sys.argv) > 1:
+        window.open_file(sys.argv[1])
+        
     window.connect('delete-event', Gtk.main_quit)
     Gtk.main()
 
